@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/renewals.dart';
 import '../data/renewals_repository.dart';
+import 'renewals_detail_screen.dart'; // Import the detail screen where you will show the renewal details
 
 class UpcomingRenewalsScreen extends StatefulWidget {
   const UpcomingRenewalsScreen({Key? key}) : super(key: key);
@@ -13,8 +14,8 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
     with SingleTickerProviderStateMixin {
   final RenewalRepository _renewalRepository = RenewalRepository();
   late TabController _tabController;
-  List<Renewals> thisMonthRenewals = [];
-  List<Renewals> nextMonthRenewals = [];
+  List<Renewal> thisMonthRenewals = [];
+  List<Renewal> nextMonthRenewals = [];
   bool isLoading = true;
 
   @override
@@ -29,8 +30,8 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       final thisMonth = await _renewalRepository.fetchThisMonthRenewals();
       final nextMonth = await _renewalRepository.fetchNextMonthRenewals();
       setState(() {
-        thisMonthRenewals = thisMonth..sort((a, b) => a.dueDate.compareTo(b.dueDate));
-        nextMonthRenewals = nextMonth..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        thisMonthRenewals = thisMonth..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
+        nextMonthRenewals = nextMonth..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
         isLoading = false;
       });
     } catch (e) {
@@ -49,7 +50,7 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
     super.dispose();
   }
 
-  Widget _buildRenewalsList(List<Renewals> renewals) {
+  Widget _buildRenewalsList(List<Renewal> renewals) {
     if (renewals.isEmpty) {
       return const Center(
         child: Text(
@@ -62,11 +63,18 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       itemCount: renewals.length,
       itemBuilder: (context, index) {
         final renewal = renewals[index];
+        final clientName = '${renewal.client?.firstName} ${renewal.client?.lastName}'; // Combine first and last name
         return ListTile(
-          title: Text(renewal.name),
-          subtitle: Text('Due Date: ${renewal.dueDate.toLocal().toString().split(' ')[0]}'),
+          title: Text(clientName), // Show client name
+          subtitle: Text('Policy Expiry Date: ${renewal.policyExpiryDate.toLocal().toString().split(' ')[0]}'),
           onTap: () {
-            // Handle onTap logic
+            // Navigate to detail screen and pass the selected renewal object
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RenewalDetailScreen(renewal: renewal),
+              ),
+            );
           },
         );
       },
@@ -89,12 +97,12 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
-        controller: _tabController,
-        children: [
-          _buildRenewalsList(thisMonthRenewals),
-          _buildRenewalsList(nextMonthRenewals),
-        ],
-      ),
+              controller: _tabController,
+              children: [
+                _buildRenewalsList(thisMonthRenewals),
+                _buildRenewalsList(nextMonthRenewals),
+              ],
+            ),
     );
   }
 }

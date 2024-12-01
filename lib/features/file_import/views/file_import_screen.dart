@@ -1,17 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
+// Assuming this is your repository class
+class FileImportRepository {
+  // Mock method to fetch data from repository
+  Future<List<Map<String, dynamic>>> getFileImports() async {
+    // Simulate network or DB delay
+    await Future.delayed(Duration(seconds: 2));
+    return [
+      {"filename": "file1.csv", "createdDate": "2024-11-04", "status": "pending"},
+      {"filename": "file2.xlsx", "createdDate": "2024-11-03", "status": "completed"},
+    ];
+  }
+
+  // Mock API call for file processing
+  Future<bool> processFile(String file) async {
+    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
+    return true; // Simulate success response
+  }
+
+  // Mock API call for file syncing
+  Future<bool> syncFile(String file) async {
+    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
+    return true; // Simulate success response
+  }
+}
+
 class FileImportScreen extends StatefulWidget {
   @override
   _FileImportScreenState createState() => _FileImportScreenState();
 }
 
 class _FileImportScreenState extends State<FileImportScreen> {
-  // Mock data for imported files
-  List<Map<String, dynamic>> importedFiles = [
-    {"filename": "file1.csv", "createdDate": "2024-11-04", "status": "pending"},
-    {"filename": "file2.xlsx", "createdDate": "2024-11-03", "status": "completed"},
-  ];
+  late Future<List<Map<String, dynamic>>> importedFilesFuture;
+  final FileImportRepository repository = FileImportRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    importedFilesFuture = repository.getFileImports(); // Fetch the initial data
+  }
 
   // Function to select a file and call API
   Future<void> _selectFile() async {
@@ -22,20 +50,12 @@ class _FileImportScreenState extends State<FileImportScreen> {
     );
     if (result != null) {
       PlatformFile file = result.files.first;
-     // print(file.name);
-     // print(file.bytes);
-    //  print(file.extension);
-     // print(file.path);
-      bool success = await _callFileProcessingAPI(file.name);
+      bool success = await repository.processFile(file.name);
       if (success) {
         _showPopup("File processed successfully");
-        // Update imported files list
         setState(() {
-          importedFiles.add({
-            "filename": file.name,
-            "createdDate": DateTime.now().toIso8601String().split("T").first,
-            "status": "completed",
-          });
+          // Add new file to the list
+          importedFilesFuture = repository.getFileImports();
         });
       }
     }
@@ -43,31 +63,13 @@ class _FileImportScreenState extends State<FileImportScreen> {
 
   // Function to sync a file
   Future<void> _syncFile(String filename) async {
-    // Call API for sync
-    bool success = await _callFileSyncAPI(filename);
+    bool success = await repository.syncFile(filename);
     if (success) {
       _showPopup("File synced successfully");
       setState(() {
-        importedFiles = importedFiles.map((file) {
-          if (file["filename"] == filename) {
-            file["status"] = "completed";
-          }
-          return file;
-        }).toList();
+        importedFilesFuture = repository.getFileImports(); // Refresh data
       });
     }
-  }
-
-  // Mock API call for file processing
-  Future<bool> _callFileProcessingAPI(String file) async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    return true; // Simulate success response
-  }
-
-  // Mock API call for file syncing
-  Future<bool> _callFileSyncAPI(String file) async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    return true; // Simulate success response
   }
 
   // Show popup with API response
@@ -92,11 +94,20 @@ class _FileImportScreenState extends State<FileImportScreen> {
       appBar: AppBar(
         title: const Text("Import"),
       ),
-      body: Column(
-        children: [
-          // Display imported file information
-          Expanded(
-            child: ListView.builder(
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: importedFilesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text("No files found"));
+          } else {
+            // Data is available, render the list
+            List<Map<String, dynamic>> importedFiles = snapshot.data!;
+
+            return ListView.builder(
               itemCount: importedFiles.length,
               itemBuilder: (context, index) {
                 final file = importedFiles[index];
@@ -105,15 +116,15 @@ class _FileImportScreenState extends State<FileImportScreen> {
                   subtitle: Text("Created: ${file["createdDate"]}"),
                   trailing: file["status"] == "pending"
                       ? ElevatedButton(
-                    onPressed: () => _syncFile(file["filename"]),
-                    child: const Text("Sync"),
-                  )
+                          onPressed: () => _syncFile(file["filename"]),
+                          child: const Text("Sync"),
+                        )
                       : const Text("Completed"),
                 );
               },
-            ),
-          ),
-        ],
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _selectFile,

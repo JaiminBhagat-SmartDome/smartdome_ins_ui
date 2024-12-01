@@ -1,0 +1,39 @@
+name: Flutter smartdome INS APK Build
+
+on:
+  push:
+    branches:
+      - main # You can change this to any branch you want to trigger the build
+  pull_request:
+    branches:
+      - main # This will also trigger on pull requests
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # The GitHub runner environment (Ubuntu, macOS, or Windows)
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable' # You can change this to a specific version like '3.0.0'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Run the build command
+      - name: Build APK
+        run: flutter build apk --release
+
+      # Upload the APK as an artifact (optional, for later download)
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: flutter-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
