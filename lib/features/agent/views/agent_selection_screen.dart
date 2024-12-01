@@ -39,7 +39,7 @@ class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
             return const Center(child: Text('No Agents Found'));
           }
 
-          final agents = snapshot.data!;
+          final agents = snapshot.data!.take(2).toList();
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -74,7 +74,7 @@ class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          agent.agentName,
+                          agent.firstName,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),

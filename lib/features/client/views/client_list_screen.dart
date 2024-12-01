@@ -1,57 +1,31 @@
 import 'package:flutter/material.dart';
-import '../models/clients.dart';
-import '../data/client_repository.dart';
+import '../models/clients.dart';  // Import the Client model
+import '../data/client_repository.dart';  // Import the Client Repository
+import 'client_view_screen.dart';  // Import the Client Detail Screen (assumed to exist)
 
-class ClientsScreen extends StatefulWidget {
-  const ClientsScreen({Key? key}) : super(key: key);
-
+class ClientListScreen extends StatefulWidget {
   @override
-  State<ClientsScreen> createState() => _ClientsScreenState();
+  _ClientListScreenState createState() => _ClientListScreenState();
 }
 
-class _ClientsScreenState extends State<ClientsScreen> {
-  final ClientRepository _clientRepository = ClientRepository();
-  List<Client> clients = [];
-  List<Client> filteredClients = [];
-  TextEditingController searchController = TextEditingController();
-  bool isLoading = true;
+class _ClientListScreenState extends State<ClientListScreen> {
+  late Future<List<Client>> _clients;
+  List<Client> _filteredClients = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _loadClients();
-    searchController.addListener(_filterClients);
+    _clients = ClientRepository().fetchClients();
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadClients() async {
-    try {
-      final fetchedClients = await _clientRepository.fetchClients();
-      setState(() {
-        clients = fetchedClients..sort((a, b) => a.name.compareTo(b.name));
-        filteredClients = clients;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching clients: $e')),
-      );
-    }
-  }
-
-  void _filterClients() {
-    final query = searchController.text.toLowerCase();
+  void _filterClients(String query) {
     setState(() {
-      filteredClients = clients
-          .where((client) => client.name.toLowerCase().contains(query))
+      _searchQuery = query;
+      _filteredClients = _filteredClients
+          .where((client) =>
+      client.firstName.toLowerCase().contains(query.toLowerCase()) ||
+          client.lastName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -60,77 +34,117 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Clients'),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by name...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-          // Clients List
-          Expanded(
-            child: filteredClients.isEmpty
-                ? const Center(
-              child: Text(
-                'No clients found',
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-                : ListView.builder(
-              itemCount: filteredClients.length,
-              itemBuilder: (context, index) {
-                final client = filteredClients[index];
-                return ListTile(
-                  title: Text(client.name),
-                  subtitle: Text('ID: ${client.id}'),
-                  onTap: () {
-                    // Navigate to Client Details Screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ClientDetailsScreen(clientId: client.id),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+        title: Text('Client List'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () async {
+              String search = await showSearch<String>(
+                context: context,
+                delegate: CustomSearchDelegate(clients: _filteredClients), // Passing filtered clients
+              ) ?? '';
+              _filterClients(search);
+            },
           ),
         ],
+      ),
+      body: FutureBuilder<List<Client>>(
+        future: _clients,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No clients available.'));
+          }
+
+          _filteredClients = snapshot.data!;
+          _filteredClients.sort((a, b) => a.firstName.compareTo(b.firstName));
+
+          return ListView.builder(
+            itemCount: _filteredClients.length,
+            itemBuilder: (context, index) {
+              final client = _filteredClients[index];
+              return ListTile(
+                title: Text('${client.firstName} ${client.lastName}'),
+                subtitle: Text('Client ID: ${client.clientID}'),
+                onTap: () {
+                  // Navigate to client detail screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ClientViewScreen(client: client),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }
 }
 
-class ClientDetailsScreen extends StatelessWidget {
-  final String clientId;
+// Custom Search Delegate for searching clients
+class CustomSearchDelegate extends SearchDelegate<String> {
+  final List<Client> clients;  // Store the list of clients passed
 
-  const ClientDetailsScreen({Key? key, required this.clientId})
-      : super(key: key);
+  CustomSearchDelegate({required this.clients});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Client Details'),
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
       ),
-      body: Center(
-        child: Text('Details for Client ID: $clientId'),
-      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Center(
+      child: Text('Search Results for: "$query"'),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = clients.where((client) {
+      return client.firstName.toLowerCase().contains(query.toLowerCase()) ||
+          client.lastName.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        final client = suggestions[index];
+        return ListTile(
+          title: Text('${client.firstName} ${client.lastName}'),
+          onTap: () {
+            query = '${client.firstName} ${client.lastName}';
+            showResults(context);
+          },
+        );
+      },
     );
   }
 }

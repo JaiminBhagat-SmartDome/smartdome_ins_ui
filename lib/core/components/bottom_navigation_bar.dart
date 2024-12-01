@@ -16,8 +16,8 @@ class BottomNavigationBarWidget extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTabSelected,
       backgroundColor: Colors.blueGrey, // Set a contrasting background color
-      selectedItemColor: Colors.white, // Highlight color for selected item
-      unselectedItemColor: Colors.indigo, // Color for unselected items
+      selectedItemColor: Colors.indigo, // Highlight color for selected item
+      unselectedItemColor: Colors.black45, // Color for unselected items
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.upload_file),

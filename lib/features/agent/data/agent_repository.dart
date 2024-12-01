@@ -9,4 +9,8 @@ class AgentRepository {
     // Replace this with actual API logic in production
     return mockAgentData;
   }
+  Future<bool> updateAgent(Agent agent) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return true;
+  }
 }

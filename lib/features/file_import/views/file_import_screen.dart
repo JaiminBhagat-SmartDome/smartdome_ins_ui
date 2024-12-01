@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 
 class FileImportScreen extends StatefulWidget {
   @override
@@ -14,19 +15,24 @@ class _FileImportScreenState extends State<FileImportScreen> {
 
   // Function to select a file and call API
   Future<void> _selectFile() async {
-    // Native file picker logic (replace with actual implementation if needed)
-    // Example: Using `file_picker` package
-    // final result = await FilePicker.platform.pickFiles();
-    String selectedFile = "example_file.csv"; // Mocked selected file
-    if (selectedFile.isNotEmpty) {
-      // Call API to process the selected file
-      bool success = await _callFileProcessingAPI(selectedFile);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['xlsx', 'xls'],
+    );
+    if (result != null) {
+      PlatformFile file = result.files.first;
+     // print(file.name);
+     // print(file.bytes);
+    //  print(file.extension);
+     // print(file.path);
+      bool success = await _callFileProcessingAPI(file.name);
       if (success) {
         _showPopup("File processed successfully");
         // Update imported files list
         setState(() {
           importedFiles.add({
-            "filename": selectedFile,
+            "filename": file.name,
             "createdDate": DateTime.now().toIso8601String().split("T").first,
             "status": "completed",
           });

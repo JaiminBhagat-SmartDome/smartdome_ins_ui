@@ -17,9 +17,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     FileImportScreen(),
-    ClientsScreen(),
+    ClientListScreen(),
     UpcomingRenewalsScreen(),
-    AgentScreen(),
+    AgentViewScreen(),
   ];
 
   void _onTabSelected(int index) {
