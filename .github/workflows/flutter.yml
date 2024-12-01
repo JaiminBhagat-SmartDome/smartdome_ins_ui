@@ -14,11 +14,11 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Java 17 using Adoptium
+    # Step 2: Set up Java 17 using zulu
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        distribution: 'adoptium'  # Use the Adoptium distribution
+        distribution: 'zulu'  # Use the zulu distribution
         java-version: '17'
 
     # Step 3: Set up Flutter (Use Flutter 3.24.5)
