@@ -1,39 +1,36 @@
-name: Flutter smartdome INS APK Build
+name: Generate Release APK
 
 on:
   push:
     branches:
-      - main # You can change this to any branch you want to trigger the build
-  pull_request:
-    branches:
-      - main # This will also trigger on pull requests
+      - main  # Trigger on merges to the main branch
 
 jobs:
   build:
-    runs-on: ubuntu-latest # The GitHub runner environment (Ubuntu, macOS, or Windows)
-    
+    runs-on: ubuntu-latest
+
     steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    # Step 1: Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      # Set up Flutter
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 'stable' # You can change this to a specific version like '3.0.0'
+    # Step 2: Set up Flutter (Use a specific version)
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.10.0' # Specify a specific version of Flutter
 
-      # Install dependencies
-      - name: Install dependencies
-        run: flutter pub get
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: flutter pub get
 
-      # Run the build command
-      - name: Build APK
-        run: flutter build apk --release
+    # Step 4: Build the release APK using Flutter command
+    - name: Build Release APK
+      run: flutter build apk --release
 
-      # Upload the APK as an artifact (optional, for later download)
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: flutter-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+    # Step 5: Upload the Release APK as an artifact
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
