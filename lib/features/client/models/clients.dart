@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Client {
   String clientID;
   String systemName;
@@ -14,7 +12,7 @@ class Client {
   int pinCode;
   String country;
   Map<String, String> phoneNumbers;
-  Map<String, String> emailAddresses;  // Change this to a map
+  Map<String, String> emailAddresses; // Change this to a map
   String agentID;
   bool isActive;
   DateTime createdAt;
@@ -43,21 +41,23 @@ class Client {
   // From JSON
   factory Client.fromJson(Map<String, dynamic> json) {
     return Client(
-      clientID: json['id'],
+      clientID: json['clientId'], // Change 'id' to 'clientId'
       systemName: json['systemName'],
-      initial: json['initial'],
-      clientType: json['clientType'],
-      firstName: json['firstName'],
-      middleName: json['middleName'],
-      lastName: json['lastName'],
-      firmName: json['firmName'],
+      initial: json['initial'] ?? '', // Handle null values
+      clientType: json['clientType'] ?? '', // Handle null values
+      firstName: json['firstName'] ?? '', // Handle null values
+      middleName: json['middleName'] ?? '', // Handle null values
+      lastName: json['lastName'] ?? '', // Handle null values
+      firmName: json['firmName'] ?? '', // Handle null values
       address1: json['address1'],
-      address2: json['address2'],
+      address2: json['address2'] ?? '', // Handle null values
       pinCode: json['pinCode'],
-      country: json['country'],
-      phoneNumbers: Map<String, String>.from(json['phoneNumbers']),
-      emailAddresses: Map<String, String>.from(json['emailAddresses']),
-      agentID: json['agentid'],
+      country: json['country'] ?? '', // Handle null values
+      phoneNumbers: Map<String, String>.from(
+          json['phoneNumbers'] ?? {}), // Handle null or empty phone numbers
+      emailAddresses: Map<String, String>.from(
+          json['emailAddresses'] ?? {}), // Handle null or empty email addresses
+      agentID: json['agentId'], // Change 'agentid' to 'agentId'
       isActive: json['isActive'],
       createdAt: DateTime.parse(json['createdAt']),
     );
@@ -66,21 +66,41 @@ class Client {
   // To JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': clientID,
+      'clientId':
+          clientID, // Change 'id' to 'clientId' to match the API response
       'systemName': systemName,
-      'initial': initial,
-      'clientType': clientType,
-      'firstName': firstName,
-      'middleName': middleName,
-      'lastName': lastName,
-      'firmName': firmName,
+      'initial': initial.isEmpty
+          ? null
+          : initial, // Handle empty strings, convert to null if necessary
+      'clientType': clientType.isEmpty
+          ? null
+          : clientType, // Handle empty strings, convert to null if necessary
+      'firstName': firstName.isEmpty
+          ? null
+          : firstName, // Handle empty strings, convert to null if necessary
+      'middleName': middleName.isEmpty
+          ? null
+          : middleName, // Handle empty strings, convert to null if necessary
+      'lastName': lastName.isEmpty
+          ? null
+          : lastName, // Handle empty strings, convert to null if necessary
+      'firmName': firmName.isEmpty
+          ? null
+          : firmName, // Handle empty strings, convert to null if necessary
       'address1': address1,
-      'address2': address2,
+      'address2': address2.isEmpty
+          ? null
+          : address2, // Handle empty strings, convert to null if necessary
       'pinCode': pinCode,
-      'country': country,
-      'phoneNumbers': phoneNumbers,
-      'emailAddresses': emailAddresses,
-      'agentid': agentID,
+      'country': country.isEmpty
+          ? null
+          : country, // Handle empty strings, convert to null if necessary
+      'phoneNumbers':
+          phoneNumbers.isEmpty ? null : phoneNumbers, // Handle empty maps
+      'emailAddresses':
+          emailAddresses.isEmpty ? null : emailAddresses, // Handle empty maps
+      'agentId':
+          agentID, // Change 'agentid' to 'agentId' to match the API response
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
     };

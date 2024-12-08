@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smartdome_ins_ui/features/agent/views/agent_selection_screen.dart';
 import '/app/main_screen.dart';
 
 class AppRouter {
@@ -7,7 +8,7 @@ class AppRouter {
       case '/main':
         return MaterialPageRoute(builder: (_) => const MainScreen());
       default:
-        return MaterialPageRoute(builder: (_) => MainScreen());
+        return MaterialPageRoute(builder: (_) => AgentSelectionScreen());
     }
   }
 }

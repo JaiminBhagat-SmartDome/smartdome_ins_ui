@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/clients.dart';  // Import the Client model
-import '../data/client_repository.dart';  // Import the Client Repository
-import 'client_view_screen.dart';  // Import the Client Detail Screen (assumed to exist)
+import '../models/clients.dart'; // Import the Client model
+import '../data/client_repository.dart'; // Import the Client Repository
+import 'client_view_screen.dart'; // Import the Client Detail Screen (assumed to exist)
 
 class ClientListScreen extends StatefulWidget {
   @override
@@ -10,13 +10,15 @@ class ClientListScreen extends StatefulWidget {
 
 class _ClientListScreenState extends State<ClientListScreen> {
   late Future<List<Client>> _clients;
+  late final ClientRepository _repository;
   List<Client> _filteredClients = [];
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _clients = ClientRepository().fetchClients();
+    _repository = ClientRepository();
+    _clients = _repository.getClientsByAgentId();
   }
 
   void _filterClients(String query) {
@@ -24,8 +26,8 @@ class _ClientListScreenState extends State<ClientListScreen> {
       _searchQuery = query;
       _filteredClients = _filteredClients
           .where((client) =>
-      client.firstName.toLowerCase().contains(query.toLowerCase()) ||
-          client.lastName.toLowerCase().contains(query.toLowerCase()))
+              client.firstName.toLowerCase().contains(query.toLowerCase()) ||
+              client.lastName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -40,9 +42,11 @@ class _ClientListScreenState extends State<ClientListScreen> {
             icon: Icon(Icons.search),
             onPressed: () async {
               String search = await showSearch<String>(
-                context: context,
-                delegate: CustomSearchDelegate(clients: _filteredClients), // Passing filtered clients
-              ) ?? '';
+                    context: context,
+                    delegate: CustomSearchDelegate(
+                        clients: _filteredClients), // Passing filtered clients
+                  ) ??
+                  '';
               _filterClients(search);
             },
           ),
@@ -71,8 +75,15 @@ class _ClientListScreenState extends State<ClientListScreen> {
             itemBuilder: (context, index) {
               final client = _filteredClients[index];
               return ListTile(
-                title: Text('${client.firstName} ${client.lastName}'),
-                subtitle: Text('Client ID: ${client.clientID}'),
+                title: Text(
+                  // Check if firstName exists, then use firstName and lastName
+                  client.firstName.isNotEmpty
+                      ? '${client.firstName} ${client.lastName}'
+                      // If firstName doesn't exist, check if firmName exists, otherwise use systemName
+                      : (client.firmName.isNotEmpty
+                          ? client.firmName
+                          : client.systemName),
+                ),
                 onTap: () {
                   // Navigate to client detail screen
                   Navigator.push(
@@ -93,7 +104,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
 
 // Custom Search Delegate for searching clients
 class CustomSearchDelegate extends SearchDelegate<String> {
-  final List<Client> clients;  // Store the list of clients passed
+  final List<Client> clients; // Store the list of clients passed
 
   CustomSearchDelegate({required this.clients});
 

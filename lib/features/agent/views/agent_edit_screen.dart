@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/agents.dart';
 import '../data/agent_repository.dart';
-import 'dart:async';
 
 class AgentEditScreen extends StatefulWidget {
   final Agent agent;

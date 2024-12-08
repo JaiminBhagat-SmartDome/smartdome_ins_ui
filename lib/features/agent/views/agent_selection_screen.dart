@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/agents.dart';
 import '../data/agent_repository.dart';
 
@@ -14,12 +14,24 @@ class AgentSelectionScreen extends StatefulWidget {
 class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
   late final AgentRepository _agentRepository;
   late Future<List<Agent>> _agentsFuture;
+  bool _isFirstLoad = true; // Flag to track first load
 
   @override
   void initState() {
     super.initState();
     _agentRepository = AgentRepository();
-    _agentsFuture = _agentRepository.fetchAgents();
+    if (_isFirstLoad) {
+      _agentsFuture = _agentRepository.fetchAgents();
+      _isFirstLoad = false; // Set flag to false after first load
+    }
+  }
+
+  // Method to save the selected agent to SharedPreferences
+  Future<void> _saveSelectedAgent(Agent agent) async {
+    final prefs = await SharedPreferences.getInstance();
+    // Convert the selected agent object to JSON string
+    String agentJson = json.encode(agent.toMap());
+    await prefs.setString('selectedAgent', agentJson); // Save JSON to SharedPreferences
   }
 
   @override
@@ -45,7 +57,7 @@ class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
             padding: const EdgeInsets.all(16.0),
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,  // Two columns in the grid
+                crossAxisCount: 2, // Two columns in the grid
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 childAspectRatio: 1,
@@ -56,6 +68,9 @@ class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
 
                 return GestureDetector(
                   onTap: () async {
+                    // Save the selected agent to SharedPreferences
+                    await _saveSelectedAgent(agent);
+
                     // Redirect to the next screen (fileImport screen)
                     Navigator.pushNamed(context, '/main');
                   },

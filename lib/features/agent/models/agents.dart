@@ -32,20 +32,21 @@ class Agent {
   });
 
   // Method to create Agent from a Map (useful for parsing JSON or creating mock data)
-  factory Agent.fromMap(Map<String, dynamic> map) {
+  // Factory constructor to create an instance from JSON
+  factory Agent.fromJson(Map<String, dynamic> json) {
     return Agent(
-      agentId: map['agentId'],
-      appId: map['appId'],
-      tenantId: map['tenantId'],
-      branchId: map['branchId'],
-      agentCode: map['agentCode'],
-      firstName: map['firstName'],
-      middleName: map['middleName'],
-      lastName: map['lastName'],
-      address1: map['address1'],
-      address2: map['address2'],
-      emails: Map<String, String>.from(map['emails']),
-      phoneNumbers: Map<String, String>.from(map['phoneNumbers']),
+      agentId: json['agentId'],
+      appId: json['appId'],
+      tenantId: json['tenantId'],
+      branchId: json['branchId'],
+      agentCode: json['agentCode'],
+      firstName: json['firstName'],
+      middleName: json['middleName'],
+      lastName: json['lastName'],
+      address1: json['address1'],
+      address2: json['address2'],
+      emails: Map<String, String>.from(json['emails']),
+      phoneNumbers: Map<String, String>.from(json['phoneNumbers']),
     );
   }
 
@@ -71,5 +72,8 @@ class Agent {
   String toJson() => json.encode(toMap());
 
   // Factory method to create an Agent from JSON
-  factory Agent.fromJson(String source) => Agent.fromMap(json.decode(source));
+   // Factory method to create an Agent from JSON (String)
+  factory Agent.fromJsonString(String source) {
+    return Agent.fromJson(json.decode(source));
+  }
 }

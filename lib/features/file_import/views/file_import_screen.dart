@@ -1,30 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-
-// Assuming this is your repository class
-class FileImportRepository {
-  // Mock method to fetch data from repository
-  Future<List<Map<String, dynamic>>> getFileImports() async {
-    // Simulate network or DB delay
-    await Future.delayed(Duration(seconds: 2));
-    return [
-      {"filename": "file1.csv", "createdDate": "2024-11-04", "status": "pending"},
-      {"filename": "file2.xlsx", "createdDate": "2024-11-03", "status": "completed"},
-    ];
-  }
-
-  // Mock API call for file processing
-  Future<bool> processFile(String file) async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    return true; // Simulate success response
-  }
-
-  // Mock API call for file syncing
-  Future<bool> syncFile(String file) async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    return true; // Simulate success response
-  }
-}
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/fileImport_repository.dart';
+import '../models/importedFiles.dart'; // Assuming the repository is in a separate file
 
 class FileImportScreen extends StatefulWidget {
   @override
@@ -32,42 +12,67 @@ class FileImportScreen extends StatefulWidget {
 }
 
 class _FileImportScreenState extends State<FileImportScreen> {
-  late Future<List<Map<String, dynamic>>> importedFilesFuture;
+  late Future<List<ImportedFile>> importedFilesFuture;
   final FileImportRepository repository = FileImportRepository();
 
   @override
   void initState() {
     super.initState();
-    importedFilesFuture = repository.getFileImports(); // Fetch the initial data
+    importedFilesFuture =
+        repository.retrieveImportedFiles(); // Fetch the initial data
   }
 
-  // Function to select a file and call API
+  // Function to select a file and call the repository method to upload it
   Future<void> _selectFile() async {
+    // Pick a file using the file picker
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['xlsx', 'xls'],
+      allowedExtensions: ['xlsx', 'xls', 'csv'],
     );
+
     if (result != null) {
       PlatformFile file = result.files.first;
-      bool success = await repository.processFile(file.name);
-      if (success) {
-        _showPopup("File processed successfully");
-        setState(() {
-          // Add new file to the list
-          importedFilesFuture = repository.getFileImports();
-        });
+      String? agentId = await _getSelectedAgentId();
+      // File selectedFile = File(file.path!); // Ensure path is not null
+      if (agentId != null) {
+        // For web: use bytes for file upload
+        bool success =
+            await repository.processFileBytes(file.bytes!, file.name, agentId);
+        if (success) {
+          _showPopup("File uploaded successfully");
+          setState(() {
+            // Refresh the data after successful upload
+            importedFilesFuture = repository.retrieveImportedFiles();
+          });
+        } else {
+          _showPopup("File upload failed");
+        }
+      } else {
+        _showPopup("No agent selected");
       }
     }
   }
 
+  // Function to retrieve the selected agentId from SharedPreferences
+  Future<String?> _getSelectedAgentId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? agentJson = prefs.getString('selectedAgent');
+    if (agentJson != null) {
+      Map<String, dynamic> agentMap = json.decode(agentJson);
+      return agentMap['agentId']; // Assuming agentId is in the selected agent map
+    }
+    return null;
+  }
+
   // Function to sync a file
-  Future<void> _syncFile(String filename) async {
-    bool success = await repository.syncFile(filename);
+  Future<void> _syncFile(String fileImportId) async {
+    bool success = await repository.syncClients(fileImportId);
     if (success) {
       _showPopup("File synced successfully");
       setState(() {
-        importedFilesFuture = repository.getFileImports(); // Refresh data
+        importedFilesFuture =
+            repository.retrieveImportedFiles(); // Refresh data
       });
     }
   }
@@ -92,31 +97,34 @@ class _FileImportScreenState extends State<FileImportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Import"),
+        title: const Text("Import Files"),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<ImportedFile>>(
         future: importedFilesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No files found"));
+            return const Center(child: Text("No files found"));
           } else {
             // Data is available, render the list
-            List<Map<String, dynamic>> importedFiles = snapshot.data!;
+            List<ImportedFile> importedFiles = snapshot.data!;
 
             return ListView.builder(
               itemCount: importedFiles.length,
               itemBuilder: (context, index) {
                 final file = importedFiles[index];
                 return ListTile(
-                  title: Text(file["filename"]),
-                  subtitle: Text("Created: ${file["createdDate"]}"),
-                  trailing: file["status"] == "pending"
+                  title: Text(file.filename),
+                  subtitle: Text("Created: ${file.createdDate}"),
+                  trailing: file.status == "Pending"
                       ? ElevatedButton(
-                          onPressed: () => _syncFile(file["filename"]),
+                          onPressed: () {
+                            // Use the unique fileImportId for any required action
+                            _syncFile(file.fileImportId);
+                          },
                           child: const Text("Sync"),
                         )
                       : const Text("Completed"),
