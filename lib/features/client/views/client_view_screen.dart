@@ -40,8 +40,8 @@ class ClientViewScreen extends StatelessWidget {
             // Contact Details Section
             _buildSectionTitle('Contact Details'),
             _buildDetailRow('Mobile', client.phoneNumbers['mobile'] ?? ''),
-            _buildDetailRow('Work', client.phoneNumbers['work'] ?? ''),
-            _buildDetailRow('Home', client.phoneNumbers['home'] ?? ''),
+            _buildDetailRow('Office', client.phoneNumbers['office'] ?? ''),
+            _buildDetailRow('Other', client.phoneNumbers['other'] ?? ''),
             _buildDetailRow('Primary Email', client.emailAddresses['primary'] ?? ''),
             _buildDetailRow('Secondary Email', client.emailAddresses['secondary'] ?? ''),
 

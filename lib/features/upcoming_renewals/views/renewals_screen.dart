@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/renewals.dart';
 import '../data/renewals_repository.dart';
 import 'renewals_detail_screen.dart'; // Import the detail screen where you will show the renewal details
@@ -63,10 +64,10 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       itemCount: renewals.length,
       itemBuilder: (context, index) {
         final renewal = renewals[index];
-        final clientName = '${renewal.client?.firstName} ${renewal.client?.lastName}'; // Combine first and last name
+        final clientName = renewal.client?.getDisplayName() ?? 'Unknown Client'; // Combine first and last name
         return ListTile(
           title: Text(clientName), // Show client name
-          subtitle: Text('Policy Expiry Date: ${renewal.policyExpiryDate.toLocal().toString().split(' ')[0]}'),
+          subtitle: Text('Policy Expiry Date: ${DateFormat('MM-dd-yyyy').format(renewal.policyExpiryDate.toLocal())}'),
           onTap: () {
             // Navigate to detail screen and pass the selected renewal object
             Navigator.push(

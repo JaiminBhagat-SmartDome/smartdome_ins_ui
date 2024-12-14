@@ -48,9 +48,10 @@ Policy Expiry Date: ${renewal.policyExpiryDate.toLocal().toString().split(' ')[0
 Policy Holder Code: ${renewal.policyHolderCode}
 ''';
 
-    final phoneNumber = renewal.client?.phoneNumbers.values.first;
+    String? clientPhoneNumber =
+        getValidPhoneNumber(renewal.client?.phoneNumbers ?? {});
     final whatsappUri = Uri.parse(
-        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+        'https://wa.me/$clientPhoneNumber?text=${Uri.encodeComponent(message)}');
 
     if (await canLaunchUrl(whatsappUri)) {
       await launchUrl(whatsappUri);
@@ -63,7 +64,10 @@ Policy Holder Code: ${renewal.policyHolderCode}
   Future<void> _makeCall(BuildContext context) async {
     if (renewal.client!.phoneNumbers.isEmpty) return;
 
-    List<String> phoneNumbers = renewal.client!.phoneNumbers.values.toList();
+    List<String> phoneNumbers = renewal.client!.phoneNumbers.values
+        .where((number) =>
+            number.length == 10 && RegExp(r'^[0-9]{10}$').hasMatch(number))
+        .toList();
 
     // Show a dialog to choose which number to call
     String selectedPhoneNumber =
@@ -101,11 +105,65 @@ Policy Holder Code: ${renewal.policyHolderCode}
     }
   }
 
+  String? getValidPhoneNumber(Map<String, String> phoneNumbers) {
+    // Check if the mobile number exists and is 10 digits long
+    String? mobile = phoneNumbers["mobile"];
+    if (mobile != null &&
+        mobile.length == 10 &&
+        RegExp(r'^[0-9]{10}$').hasMatch(mobile)) {
+      return mobile; // Return the valid mobile number
+    }
+
+    // Check if the office number exists and is 10 digits long
+    String? office = phoneNumbers["office"];
+    if (office != null &&
+        office.length == 10 &&
+        RegExp(r'^[0-9]{10}$').hasMatch(office)) {
+      return office; // Return the valid office number
+    }
+
+    // Return null if neither is valid
+    return null;
+  }
+
+  String formatPhoneNumbers(Map<String, String> phoneNumbers) {
+    List<String> formattedNumbers = [];
+
+    // Check for each phone number and add it to the list if it's not empty
+    if (phoneNumbers["office"]!.isNotEmpty) {
+      formattedNumbers.add('Office: ${phoneNumbers["office"]}');
+    }
+    if (phoneNumbers["other"]!.isNotEmpty) {
+      formattedNumbers.add('Other: ${phoneNumbers["other"]}');
+    }
+    if (phoneNumbers["mobile"]!.isNotEmpty) {
+      formattedNumbers.add('Mobile: ${phoneNumbers["mobile"]}');
+    }
+
+    // Join each phone number with a newline
+    return formattedNumbers.join('\n');
+  }
+
+  String formatEmails(Map<String, String> emails) {
+    List<String> formattedEmails = [];
+
+    // Check for each phone number and add it to the list if it's not empty
+    if (emails["primary"]!.isNotEmpty) {
+      formattedEmails.add('Office: ${emails["primary"]}');
+    }
+    if (emails["secondary"]!.isNotEmpty) {
+      formattedEmails.add('Other: ${emails["secondary"]}');
+    }
+
+    // Join each phone number with a newline
+    return formattedEmails.join('\n');
+  }
+
   @override
   Widget build(BuildContext context) {
     // Client Details Section
-    String clientEmail = renewal.client!.emailAddresses.values.join(', ');
-    String clientPhoneNumber = renewal.client!.phoneNumbers.values.join(', ');
+    String clientEmail = formatEmails(renewal.client!.emailAddresses);
+    String clientPhoneNumber = formatPhoneNumbers(renewal.client!.phoneNumbers);
 
     return Scaffold(
       appBar: AppBar(
@@ -120,12 +178,15 @@ Policy Holder Code: ${renewal.policyHolderCode}
             Text('Client Details',
                 style: Theme.of(context).textTheme.headlineMedium),
             SizedBox(height: 10),
+            Text('System Name: ${renewal.client?.systemName}'),
             Text('First Name: ${renewal.client?.firstName}'),
             Text('Last Name: ${renewal.client?.lastName}'),
+            Text('Client Type: ${renewal.client?.clientType}'),
+            Text('Firm Type: ${renewal.client?.firmName}'),
             Text('Address1: ${renewal.client?.address1}'),
             Text('Address2: ${renewal.client?.address2}'),
-            Text('Email: $clientEmail'),
-            Text('Phone Numbers: $clientPhoneNumber'),
+            Text('Email:\n$clientEmail'),
+            Text('Phone Numbers:\n$clientPhoneNumber'),
             SizedBox(height: 20),
 
             // Policy Details Section
@@ -143,6 +204,14 @@ Policy Holder Code: ${renewal.policyHolderCode}
             Text('Policy Holder Code: ${renewal.policyHolderCode}'),
             SizedBox(height: 20),
 
+            // Premium Details Section
+            Text('Premium Details',
+                style: Theme.of(context).textTheme.headlineMedium),
+            SizedBox(height: 10),
+            Text('Sum Insured: ${renewal.sumInsured}'),
+            Text('Gross Premium: ${renewal.grossPremium}'),
+            Text('Service Tax: ${renewal.serviceTax}'),
+            SizedBox(height: 20),
             // Action Buttons Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

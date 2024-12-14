@@ -1,122 +1,64 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/renewals.dart';
-import '../data/mock_renewals_data.dart';
-import '../../client/models/clients.dart';
 
 class RenewalRepository {
-  // Fetch renewals for this month
+  static const String _baseUrl = 'http://localhost:5043/api/Renewals/agent/';
+
+  // Function to fetch renewals for this month
   Future<List<Renewal>> fetchThisMonthRenewals() async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate API delay
-    final now = DateTime.now();
-    
-    // Filter renewals for this month
-    return mockRenewalsData.where((renewal) {
-      DateTime expiryDate = DateTime.parse(renewal['policyExpiryDate']);
-      return expiryDate.month == now.month && expiryDate.year == now.year;
-    }).map((renewalData) {
-      // Map data to Renewal model
-      return Renewal(
-        id: renewalData['id'],
-        operatingOffice: renewalData['operatingOffice'],
-        lobDescription: renewalData['lobDescription'],
-        policyNumber: renewalData['policyNumber'],
-        productCode: renewalData['productCode'],
-        productName: renewalData['productName'],
-        policyInceptionDate: DateTime.parse(renewalData['policyInceptionDate']),
-        policyExpiryDate: DateTime.parse(renewalData['policyExpiryDate']),
-        policyHolderCode: renewalData['policyHolderCode'],
-        devOfficerCode: renewalData['devOfficerCode'],
-        devOfficerName: renewalData['devOfficerName'],
-        sumInsured: renewalData['sumInsured'],
-        grossPremium: renewalData['grossPremium'],
-        serviceTax: renewalData['serviceTax'],
-        registrationNo: renewalData['registrationNo'],
-        chassisNo: renewalData['chassisNo'],
-        engineNo: renewalData['engineNo'],
-        odExpiryDate: DateTime.parse(renewalData['odExpiryDate']),
-        createdAt: DateTime.parse(renewalData['createdAt']),
-        importStatus: renewalData['importStatus'],
-        fileImportID: renewalData['fileImportid'],
-        clientID: renewalData['clientid'],
-        agentID: renewalData['agentid'],
-        client: Client(
-          clientID: renewalData['client']['clientID'],
-          systemName: renewalData['client']['systemName'],
-          initial: renewalData['client']['initial'],
-          clientType: renewalData['client']['clientType'],
-          firstName: renewalData['client']['firstName'],
-          middleName: renewalData['client']['middleName'],
-          lastName: renewalData['client']['lastName'],
-          firmName: renewalData['client']['firmName'],
-          address1: renewalData['client']['address1'],
-          address2: renewalData['client']['address2'],
-          pinCode: renewalData['client']['pinCode'],
-          country: renewalData['client']['country'],
-          phoneNumbers: Map<String, String>.from(renewalData['client']['phoneNumbers']),
-          emailAddresses: Map<String, String>.from(renewalData['client']['emailAddresses']),
-          agentID: renewalData['client']['agentID'],
-          isActive: renewalData['client']['isActive'],
-          createdAt: DateTime.parse(renewalData['client']['createdAt']),
-        ),
-      );
-    }).toList();
+    final agentId = await _getSelectedAgentId();
+    if (agentId == null) {
+      throw Exception('Agent ID not found');
+    }
+    final response = await http.get(Uri.parse('$_baseUrl$agentId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data
+          .map((renewalData) => Renewal.fromJson(renewalData))
+          .where((renewal) {
+            final now = DateTime.now();
+            return renewal.policyExpiryDate != null &&
+                renewal.policyExpiryDate!.month == now.month;
+          }).toList();
+    } else {
+      throw Exception('Failed to load renewals');
+    }
   }
 
-  // Fetch renewals for next month
+  // Function to fetch renewals for next month
   Future<List<Renewal>> fetchNextMonthRenewals() async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate API delay
-    final now = DateTime.now();
-    final nextMonth = DateTime(now.year, now.month + 1);
-    
-    // Filter renewals for next month
-    return mockRenewalsData.where((renewal) {
-      DateTime expiryDate = DateTime.parse(renewal['policyExpiryDate']);
-      return expiryDate.month == nextMonth.month && expiryDate.year == nextMonth.year;
-    }).map((renewalData) {
-      // Map data to Renewal model
-      return Renewal(
-        id: renewalData['id'],
-        operatingOffice: renewalData['operatingOffice'],
-        lobDescription: renewalData['lobDescription'],
-        policyNumber: renewalData['policyNumber'],
-        productCode: renewalData['productCode'],
-        productName: renewalData['productName'],
-        policyInceptionDate: DateTime.parse(renewalData['policyInceptionDate']),
-        policyExpiryDate: DateTime.parse(renewalData['policyExpiryDate']),
-        policyHolderCode: renewalData['policyHolderCode'],
-        devOfficerCode: renewalData['devOfficerCode'],
-        devOfficerName: renewalData['devOfficerName'],
-        sumInsured: renewalData['sumInsured'],
-        grossPremium: renewalData['grossPremium'],
-        serviceTax: renewalData['serviceTax'],
-        registrationNo: renewalData['registrationNo'],
-        chassisNo: renewalData['chassisNo'],
-        engineNo: renewalData['engineNo'],
-        odExpiryDate: DateTime.parse(renewalData['odExpiryDate']),
-        createdAt: DateTime.parse(renewalData['createdAt']),
-        importStatus: renewalData['importStatus'],
-        fileImportID: renewalData['fileImportid'],
-        clientID: renewalData['clientid'],
-        agentID: renewalData['agentid'],
-        client: Client(
-          clientID: renewalData['client']['clientID'],
-          systemName: renewalData['client']['systemName'],
-          initial: renewalData['client']['initial'],
-          clientType: renewalData['client']['clientType'],
-          firstName: renewalData['client']['firstName'],
-          middleName: renewalData['client']['middleName'],
-          lastName: renewalData['client']['lastName'],
-          firmName: renewalData['client']['firmName'],
-          address1: renewalData['client']['address1'],
-          address2: renewalData['client']['address2'],
-          pinCode: renewalData['client']['pinCode'],
-          country: renewalData['client']['country'],
-          phoneNumbers: Map<String, String>.from(renewalData['client']['phoneNumbers']),
-          emailAddresses: Map<String, String>.from(renewalData['client']['emailAddresses']),
-          agentID: renewalData['client']['agentID'],
-          isActive: renewalData['client']['isActive'],
-          createdAt: DateTime.parse(renewalData['client']['createdAt']),
-        ),
-      );
-    }).toList();
+    final agentId = await _getSelectedAgentId();
+    if (agentId == null) {
+      throw Exception('Agent ID not found');
+    }
+    final response = await http.get(Uri.parse('$_baseUrl$agentId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data
+          .map((renewalData) => Renewal.fromJson(renewalData))
+          .where((renewal) {
+            final now = DateTime.now();
+            return renewal.policyExpiryDate != null &&
+                renewal.policyExpiryDate!.month == now.month + 1;
+          }).toList();
+    } else {
+      throw Exception('Failed to load renewals');
+    }
+  }
+
+  // Function to retrieve the agentId from SharedPreferences
+  Future<String?> _getSelectedAgentId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? agentJson = prefs.getString('selectedAgent');
+
+    if (agentJson != null) {
+      Map<String, dynamic> agentMap = json.decode(agentJson);
+      return agentMap['agentId']; // Assuming agentId is present in the agentMap
+    }
+    return null;
   }
 }

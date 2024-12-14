@@ -1,19 +1,24 @@
 import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../Config.dart';
+import '../../../core/shared_preferences_helper.dart';
 import '../models/clients.dart';
-import '../data/mock_client_data.dart';
 import 'package:http/http.dart' as http;
 
 class ClientRepository {
+  // API paths
+  static const String _clientPath = '/client';
+
   // Method to retrieve all clients by agentId
   Future<List<Client>> getClientsByAgentId() async {
-    // Retrieve the agentId using the existing method
-    String? agentId = await _getSelectedAgentId();
+    // Retrieve the agentId using SharedPreferencesHelper
+    String? agentId = await SharedPreferencesHelper.getSelectedAgentId();
 
-    // API endpoint with dynamic agentId
-    final String url = 'http://localhost:5043/api/client/$agentId';
+    if (agentId == null) {
+      throw Exception('No agentId found');
+    }
+
+    // Construct the API URL
+    final String url = '${AppConfig.apiBaseUrl}$_clientPath/$agentId';
 
     try {
       // Make the GET request
@@ -25,14 +30,11 @@ class ClientRepository {
         List<dynamic> jsonResponse = json.decode(response.body);
 
         // Map the JSON response to a list of Client objects
-        List<Client> clients = jsonResponse.map((client) {
-          return Client.fromJson(client);
-        }).toList();
-
-        return clients;
+        return jsonResponse.map((client) => Client.fromJson(client)).toList();
       } else {
         // Handle unsuccessful status codes
-        throw Exception('Failed to load clients. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load clients. Status code: ${response.statusCode}');
       }
     } catch (e) {
       // Handle errors like network issues, JSON parsing errors, etc.
@@ -40,14 +42,52 @@ class ClientRepository {
     }
   }
 
-    Future<String?> _getSelectedAgentId() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? agentJson = prefs.getString('selectedAgent');
+  // Method to update the client information via the API
+  Future<bool> updateClient(Client client) async {
+    // Construct the API URL
+    final String url = '${AppConfig.apiBaseUrl}$_clientPath/${client.clientId}';
 
-    if (agentJson != null) {
-      Map<String, dynamic> agentMap = json.decode(agentJson);
-      return agentMap['agentId']; // Assuming agentId is present in the agentMap
+    // Request body (convert client object to JSON)
+    final Map<String, dynamic> clientData = {
+      'clientId': client.clientId,
+      'systemName': client.systemName,
+      'clientType': client.clientType,
+      'initial': client.initial,
+      'firstName': client.firstName,
+      'middleName': client.middleName,
+      'lastName': client.lastName,
+      'address1': client.address1,
+      'address2': client.address2,
+      'pinCode': client.pinCode,
+      'firmName': client.firmName,
+      'country': client.country,
+      'phoneNumbers': client.phoneNumbers,
+      'emailAddresses': client.emailAddresses,
+      'agentId': client.agentId,
+      'isActive': client.isActive
+    };
+
+    // Sending the PUT request
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(clientData),
+      );
+
+      if (response.statusCode == 204) {
+        // If the server responds with a success status
+        return true;
+      } else {
+        // If the server responds with an error status
+        print('Failed to update client. Status code: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating client: $e');
+      return false;
     }
-    return null;
   }
 }

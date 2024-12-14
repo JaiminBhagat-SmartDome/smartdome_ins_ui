@@ -25,7 +25,7 @@ class _AgentEditScreenState extends State<AgentEditScreen> {
   late TextEditingController _secondaryEmailController;
   late TextEditingController _mobileController;
   late TextEditingController _workController;
-  late TextEditingController _homeController;
+  late TextEditingController _otherController;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _AgentEditScreenState extends State<AgentEditScreen> {
     _secondaryEmailController = TextEditingController(text: widget.agent.emails['secondary'] ?? '');
     _mobileController = TextEditingController(text: widget.agent.phoneNumbers['mobile'] ?? '');
     _workController = TextEditingController(text: widget.agent.phoneNumbers['work'] ?? '');
-    _homeController = TextEditingController(text: widget.agent.phoneNumbers['home'] ?? '');
+    _otherController = TextEditingController(text: widget.agent.phoneNumbers['other'] ?? '');
   }
 
   // Email validation
@@ -89,18 +89,22 @@ class _AgentEditScreenState extends State<AgentEditScreen> {
         phoneNumbers: {
           'mobile': _mobileController.text,
           'work': _workController.text,
-          'home': _homeController.text,
+          'other': _otherController.text,
         },
       );
 
-      // Call the API to update agent
-      final success = await agentRepository.updateAgent(updatedAgent);
-      if (success) {
-        // Navigate back to AgentViewScreen on success
-        Navigator.pop(context);
-      } else {
-        // Handle failure (e.g., show error message)
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update agent')));
+      try {
+        // Call the API to update agent
+        final success = await agentRepository.updateAgent(updatedAgent);
+        if (success) {
+          // Navigate back to AgentViewScreen on success
+          Navigator.pop(context, updatedAgent);
+        } else {
+          // Handle failure (e.g., show error message)
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update agent')));
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -191,8 +195,8 @@ class _AgentEditScreenState extends State<AgentEditScreen> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               TextFormField(
-                controller: _homeController,
-                decoration: InputDecoration(labelText: 'Home'),
+                controller: _otherController,
+                decoration: InputDecoration(labelText: 'Other'),
                 validator: _validatePhoneNumber,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],

@@ -75,15 +75,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
             itemBuilder: (context, index) {
               final client = _filteredClients[index];
               return ListTile(
-                title: Text(
-                  // Check if firstName exists, then use firstName and lastName
-                  client.firstName.isNotEmpty
-                      ? '${client.firstName} ${client.lastName}'
-                      // If firstName doesn't exist, check if firmName exists, otherwise use systemName
-                      : (client.firmName.isNotEmpty
-                          ? client.firmName
-                          : client.systemName),
-                ),
+                title: Text(client.getDisplayName()),
                 onTap: () {
                   // Navigate to client detail screen
                   Navigator.push(

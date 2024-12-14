@@ -21,11 +21,10 @@ class Renewal {
   String chassisNo;
   String engineNo;
   DateTime? odExpiryDate;
-  DateTime createdAt;
   String importStatus;
-  String fileImportID;
-  String clientID;
-  String agentID;
+  String fileImportId;
+  String clientId;
+  String agentId;
   Client? client;  // Client as a field
 
   Renewal({
@@ -47,11 +46,10 @@ class Renewal {
     required this.chassisNo,
     required this.engineNo,
     this.odExpiryDate,
-    required this.createdAt,
     required this.importStatus,
-    required this.fileImportID,
-    required this.clientID,
-    required this.agentID,
+    required this.fileImportId,
+    required this.clientId,
+    required this.agentId,
     this.client,  // Initialize Client
   });
 
@@ -64,8 +62,12 @@ class Renewal {
       policyNumber: json['policyNumber'] ?? '',
       productCode: json['productCode'] ?? '',
       productName: json['productName'] ?? '',
-      policyInceptionDate: json['policyInceptionDate'],
-      policyExpiryDate: json['policyExpiryDate'],
+      policyInceptionDate: json['policyInceptionDate'] != null
+          ? DateTime.parse(json['policyInceptionDate'])
+          : DateTime.now(),
+      policyExpiryDate: json['policyExpiryDate'] != null
+          ? DateTime.parse(json['policyExpiryDate'])
+          : DateTime.now(),
       policyHolderCode: json['policyHolderCode'] ?? '',
       devOfficerCode: json['devOfficerCode'] ?? '',
       devOfficerName: json['devOfficerName'] ?? '',
@@ -78,13 +80,12 @@ class Renewal {
       odExpiryDate: json['odExpiryDate'] != null
           ? DateTime.parse(json['odExpiryDate'])
           : null,
-      createdAt: DateTime.parse(json['createdAt']),
       importStatus: json['importStatus'] ?? '',
-      fileImportID: json['fileImportid'] ?? '',
-      clientID: json['clientid'] ?? '',
-      agentID: json['agentid'] ?? '',
-      client: json['client'] != null
-          ? Client.fromJson(json['client']) // Deserialize nested Client object
+      fileImportId: json['fileImportId'] ?? '',
+      clientId: json['clientId'] ?? '',
+      agentId: json['agentId'] ?? '',
+      client: json['clientRecord'] != null
+          ? Client.fromJson(json['clientRecord']) // Deserialize nested Client object
           : null,
     );
   }
@@ -110,11 +111,10 @@ class Renewal {
       'chassisNo': chassisNo,
       'engineNo': engineNo,
       'odExpiryDate': odExpiryDate?.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
       'importStatus': importStatus,
-      'fileImportid': fileImportID,
-      'clientid': clientID,
-      'agentid': agentID,
+      'fileImportId': fileImportId,
+      'clientId': clientId,
+      'agentId': agentId,
       'client': client?.toJson(), // Serialize the Client object
     };
   }

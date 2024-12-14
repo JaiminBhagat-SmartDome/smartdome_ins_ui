@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/shared_preferences_helper.dart';
 import '../models/agents.dart';
 import '../data/agent_repository.dart';
 
@@ -69,7 +70,7 @@ class _AgentSelectionScreenState extends State<AgentSelectionScreen> {
                 return GestureDetector(
                   onTap: () async {
                     // Save the selected agent to SharedPreferences
-                    await _saveSelectedAgent(agent);
+                    await SharedPreferencesHelper.setSelectedAgent(agent);
 
                     // Redirect to the next screen (fileImport screen)
                     Navigator.pushNamed(context, '/main');

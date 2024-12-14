@@ -2,7 +2,7 @@ import '../models/clients.dart';
 
 List<Client> mockClientData = [
   Client(
-    clientID: '1',
+    clientId: '1',
     systemName: 'SystemOne',
     initial: 'A',
     clientType: 'Individual',
@@ -23,12 +23,11 @@ List<Client> mockClientData = [
       'primary': 'alice.johnson@invalid.com',
       'secondary': 'alice.johnsondomain@invalid.com',
     },
-    agentID: 'A001',
-    isActive: true,
-    createdAt: DateTime.now(),
+    agentId: 'A001',
+    isActive: true    
   ),
   Client(
-    clientID: '2',
+    clientId: '2',
     systemName: 'SystemTwo',
     initial: 'B',
     clientType: 'Firm',
@@ -49,12 +48,11 @@ List<Client> mockClientData = [
       'primary': 'bob.smith@invalid.cd',  // Invalid email
       'secondary': 'bob.smith@rrrr.com',  // Invalid email
     },
-    agentID: 'A002',
-    isActive: true,
-    createdAt: DateTime.now(),
+    agentId: 'A002',
+    isActive: true
   ),
   Client(
-    clientID: '3',
+    clientId: '3',
     systemName: 'SystemThree',
     initial: 'C',
     clientType: 'Individual',
@@ -75,12 +73,11 @@ List<Client> mockClientData = [
       'primary': 'charlie.brown@invalid.bg',  // Invalid email
       'secondary': 'charlie.brownnoDomain@invalid.com',  // Invalid email
     },
-    agentID: 'A003',
-    isActive: true,
-    createdAt: DateTime.now(),
+    agentId: 'A003',
+    isActive: true    
   ),
   Client(
-    clientID: '4',
+    clientId: '4',
     systemName: 'SystemFour',
     initial: 'D',
     clientType: 'Firm',
@@ -101,12 +98,11 @@ List<Client> mockClientData = [
       'primary': 'diana.prince@invalid.rr',  // Invalid email
       'secondary': 'diana.princenvalid@domain.com',  // Invalid email
     },
-    agentID: 'A004',
-    isActive: true,
-    createdAt: DateTime.now(),
+    agentId: 'A004',
+    isActive: true
   ),
   Client(
-    clientID: '5',
+    clientId: '5',
     systemName: 'SystemFive',
     initial: 'E',
     clientType: 'Individual',
@@ -127,8 +123,7 @@ List<Client> mockClientData = [
       'primary': 'edward.norton@invalid.bb',  // Invalid email
       'secondary': 'edward.domain.com@invalid.fr',  // Invalid email
     },
-    agentID: 'A005',
-    isActive: true,
-    createdAt: DateTime.now(),
+    agentId: 'A005',
+    isActive: true
   ),
 ];

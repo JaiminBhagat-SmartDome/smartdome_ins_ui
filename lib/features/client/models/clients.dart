@@ -1,5 +1,5 @@
 class Client {
-  String clientID;
+  String clientId;
   String systemName;
   String initial;
   String clientType;
@@ -13,13 +13,12 @@ class Client {
   String country;
   Map<String, String> phoneNumbers;
   Map<String, String> emailAddresses; // Change this to a map
-  String agentID;
+  String agentId;
   bool isActive;
-  DateTime createdAt;
 
   // Constructor
   Client({
-    required this.clientID,
+    required this.clientId,
     required this.systemName,
     required this.initial,
     required this.clientType,
@@ -33,15 +32,24 @@ class Client {
     required this.country,
     required this.phoneNumbers,
     required this.emailAddresses,
-    required this.agentID,
-    required this.isActive,
-    required this.createdAt,
+    required this.agentId,
+    required this.isActive
   });
+
+  String getDisplayName() {
+    if (firstName.isNotEmpty) {
+      return '$firstName $lastName';
+    } else if (firmName.isNotEmpty) {
+      return firmName;
+    } else {
+      return systemName;
+    }
+  }
 
   // From JSON
   factory Client.fromJson(Map<String, dynamic> json) {
     return Client(
-      clientID: json['clientId'], // Change 'id' to 'clientId'
+      clientId: json['clientId'], // Change 'id' to 'clientId'
       systemName: json['systemName'],
       initial: json['initial'] ?? '', // Handle null values
       clientType: json['clientType'] ?? '', // Handle null values
@@ -57,9 +65,8 @@ class Client {
           json['phoneNumbers'] ?? {}), // Handle null or empty phone numbers
       emailAddresses: Map<String, String>.from(
           json['emailAddresses'] ?? {}), // Handle null or empty email addresses
-      agentID: json['agentId'], // Change 'agentid' to 'agentId'
-      isActive: json['isActive'],
-      createdAt: DateTime.parse(json['createdAt']),
+      agentId: json['agentId'], // Change 'agentid' to 'agentId'
+      isActive: json['isActive']
     );
   }
 
@@ -67,7 +74,7 @@ class Client {
   Map<String, dynamic> toJson() {
     return {
       'clientId':
-          clientID, // Change 'id' to 'clientId' to match the API response
+          clientId, // Change 'id' to 'clientId' to match the API response
       'systemName': systemName,
       'initial': initial.isEmpty
           ? null
@@ -100,9 +107,8 @@ class Client {
       'emailAddresses':
           emailAddresses.isEmpty ? null : emailAddresses, // Handle empty maps
       'agentId':
-          agentID, // Change 'agentid' to 'agentId' to match the API response
-      'isActive': isActive,
-      'createdAt': createdAt.toIso8601String(),
+          agentId, // Change 'agentid' to 'agentId' to match the API response
+      'isActive': isActive
     };
   }
 }
