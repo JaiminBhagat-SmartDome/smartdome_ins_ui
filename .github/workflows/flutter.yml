@@ -26,6 +26,10 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.24.5'  # Use your specified version of Flutter
+    
+    #step 3.1 clean
+    - name: clean flutter
+      run: flutter clean
 
     # Step 4: Install dependencies
     - name: Install dependencies
