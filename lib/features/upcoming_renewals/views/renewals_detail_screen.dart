@@ -5,8 +5,10 @@ import '../models/renewals.dart';
 class RenewalDetailScreen extends StatelessWidget {
   final Renewal renewal;
 
-  const RenewalDetailScreen({Key? key, required this.renewal})
-      : super(key: key);
+  const RenewalDetailScreen({
+    Key? key,
+    required this.renewal,
+  }) : super(key: key);
 
   // Function to open the email app
   Future<void> _openEmailApp() async {
@@ -108,10 +110,8 @@ Policy Holder Code: ${renewal.policyHolderCode}
   String? getValidPhoneNumber(Map<String, String> phoneNumbers) {
     // Check if the mobile number exists and is 10 digits long
     String? mobile = phoneNumbers["mobile"];
-    if (mobile != null &&
-        mobile.length == 10 &&
-        RegExp(r'^[0-9]{10}$').hasMatch(mobile)) {
-      return mobile; // Return the valid mobile number
+    if (mobile != null && mobile.length == 10) {
+      return mobile;
     }
 
     // Check if the office number exists and is 10 digits long
@@ -129,41 +129,49 @@ Policy Holder Code: ${renewal.policyHolderCode}
   String formatPhoneNumbers(Map<String, String> phoneNumbers) {
     List<String> formattedNumbers = [];
 
-    // Check for each phone number and add it to the list if it's not empty
-    if (phoneNumbers["office"]!.isNotEmpty) {
-      formattedNumbers.add('Office: ${phoneNumbers["office"]}');
-    }
-    if (phoneNumbers["other"]!.isNotEmpty) {
-      formattedNumbers.add('Other: ${phoneNumbers["other"]}');
-    }
-    if (phoneNumbers["mobile"]!.isNotEmpty) {
-      formattedNumbers.add('Mobile: ${phoneNumbers["mobile"]}');
+    if (phoneNumbers.isNotEmpty) {
+      if (phoneNumbers["office"]!.isNotEmpty) {
+        formattedNumbers.add('Office: ${phoneNumbers["office"]}');
+      }
+      if (phoneNumbers["other"]!.isNotEmpty) {
+        formattedNumbers.add('Other: ${phoneNumbers["other"]}');
+      }
+      if (phoneNumbers["mobile"]!.isNotEmpty) {
+        formattedNumbers.add('Mobile: ${phoneNumbers["mobile"]}');
+      }
     }
 
-    // Join each phone number with a newline
-    return formattedNumbers.join('\n');
+    return formattedNumbers.isEmpty
+        ? 'No phone number available'
+        : formattedNumbers.join('\n');
   }
 
   String formatEmails(Map<String, String> emails) {
     List<String> formattedEmails = [];
 
-    // Check for each phone number and add it to the list if it's not empty
-    if (emails["primary"]!.isNotEmpty) {
-      formattedEmails.add('Office: ${emails["primary"]}');
-    }
-    if (emails["secondary"]!.isNotEmpty) {
-      formattedEmails.add('Other: ${emails["secondary"]}');
+    if (emails.isNotEmpty) {
+      if (emails["primary"]!.isNotEmpty) {
+        formattedEmails.add('Primary: ${emails["primary"]}');
+      }
+      if (emails["secondary"]!.isNotEmpty) {
+        formattedEmails.add('Secondary: ${emails["secondary"]}');
+      }
     }
 
-    // Join each phone number with a newline
-    return formattedEmails.join('\n');
+    return formattedEmails.isEmpty
+        ? 'No email available'
+        : formattedEmails.join('\n');
   }
 
   @override
   Widget build(BuildContext context) {
     // Client Details Section
-    String clientEmail = formatEmails(renewal.client!.emailAddresses);
-    String clientPhoneNumber = formatPhoneNumbers(renewal.client!.phoneNumbers);
+    String clientEmail = renewal.client?.emailAddresses.isNotEmpty == true
+        ? formatEmails(renewal.client!.emailAddresses)
+        : 'No email provided';
+    String clientPhoneNumber = renewal.client?.phoneNumbers.isNotEmpty == true
+        ? formatPhoneNumbers(renewal.client!.phoneNumbers)
+        : 'No phone number provided';
 
     return Scaffold(
       appBar: AppBar(
@@ -178,9 +186,9 @@ Policy Holder Code: ${renewal.policyHolderCode}
             Text('Client Details',
                 style: Theme.of(context).textTheme.headlineMedium),
             SizedBox(height: 10),
-            Text('System Name: ${renewal.client?.systemName}'),
-            Text('First Name: ${renewal.client?.firstName}'),
-            Text('Last Name: ${renewal.client?.lastName}'),
+            Text('System Name: ${renewal.client?.systemName ?? 'N/A'}'),
+            Text('First Name: ${renewal.client?.firstName ?? 'N/A'}'),
+            Text('Last Name: ${renewal.client?.lastName ?? 'N/A'}'),
             Text('Client Type: ${renewal.client?.clientType}'),
             Text('Firm Type: ${renewal.client?.firmName}'),
             Text('Address1: ${renewal.client?.address1}'),

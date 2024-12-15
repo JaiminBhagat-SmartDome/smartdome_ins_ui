@@ -9,8 +9,9 @@ class ClientListScreen extends StatefulWidget {
 }
 
 class _ClientListScreenState extends State<ClientListScreen> {
-  late Future<List<Client>> _clients;
+  late Future<List<Client>> _clientsFuture;
   late final ClientRepository _repository;
+  List<Client> _clients = [];
   List<Client> _filteredClients = [];
   String _searchQuery = '';
 
@@ -18,17 +19,27 @@ class _ClientListScreenState extends State<ClientListScreen> {
   void initState() {
     super.initState();
     _repository = ClientRepository();
-    _clients = _repository.getClientsByAgentId();
+    _clientsFuture = _repository.getClientsByAgentId();
+    _loadClients();
   }
 
+  // Method to fetch clients and set state
+  Future<void> _loadClients() async {
+    final clients = await _clientsFuture;
+    setState(() {
+      _clients = clients;
+      _filteredClients = clients;  // Initially, no filtering
+    });
+  }
+
+  // Filter clients based on search query
   void _filterClients(String query) {
     setState(() {
       _searchQuery = query;
-      _filteredClients = _filteredClients
-          .where((client) =>
-              client.firstName.toLowerCase().contains(query.toLowerCase()) ||
-              client.lastName.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _filteredClients = _clients.where((client) {
+        return client.firstName.toLowerCase().contains(query.toLowerCase()) ||
+            client.lastName.toLowerCase().contains(query.toLowerCase());
+      }).toList();
     });
   }
 
@@ -36,7 +47,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Client List'),
+        title: Text('Client List (${_filteredClients.length})'), // Show filtered count
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -44,7 +55,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
               String search = await showSearch<String>(
                     context: context,
                     delegate: CustomSearchDelegate(
-                        clients: _filteredClients), // Passing filtered clients
+                        clients: _clients), // Use the full client list for searching
                   ) ??
                   '';
               _filterClients(search);
@@ -53,7 +64,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
         ],
       ),
       body: FutureBuilder<List<Client>>(
-        future: _clients,
+        future: _clientsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -67,7 +78,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
             return Center(child: Text('No clients available.'));
           }
 
-          _filteredClients = snapshot.data!;
+          // No need to modify _filteredClients anymore, it's updated dynamically
           _filteredClients.sort((a, b) => a.firstName.compareTo(b.firstName));
 
           return ListView.builder(

@@ -17,27 +17,28 @@ class Client {
   bool isActive;
 
   // Constructor
-  Client({
-    required this.clientId,
-    required this.systemName,
-    required this.initial,
-    required this.clientType,
-    required this.firstName,
-    required this.middleName,
-    required this.lastName,
-    required this.firmName,
-    required this.address1,
-    required this.address2,
-    required this.pinCode,
-    required this.country,
-    required this.phoneNumbers,
-    required this.emailAddresses,
-    required this.agentId,
-    required this.isActive
-  });
+  Client(
+      {required this.clientId,
+      required this.systemName,
+      required this.initial,
+      required this.clientType,
+      required this.firstName,
+      required this.middleName,
+      required this.lastName,
+      required this.firmName,
+      required this.address1,
+      required this.address2,
+      required this.pinCode,
+      required this.country,
+      required this.phoneNumbers,
+      required this.emailAddresses,
+      required this.agentId,
+      required this.isActive});
 
   String getDisplayName() {
-    if (firstName.isNotEmpty) {
+    if (clientType == 'Firm' && firmName.isNotEmpty) {
+      return '$firmName ($firstName $lastName)';
+    } else if (firstName.isNotEmpty) {
       return '$firstName $lastName';
     } else if (firmName.isNotEmpty) {
       return firmName;
@@ -49,25 +50,24 @@ class Client {
   // From JSON
   factory Client.fromJson(Map<String, dynamic> json) {
     return Client(
-      clientId: json['clientId'], // Change 'id' to 'clientId'
-      systemName: json['systemName'],
-      initial: json['initial'] ?? '', // Handle null values
-      clientType: json['clientType'] ?? '', // Handle null values
-      firstName: json['firstName'] ?? '', // Handle null values
-      middleName: json['middleName'] ?? '', // Handle null values
-      lastName: json['lastName'] ?? '', // Handle null values
-      firmName: json['firmName'] ?? '', // Handle null values
-      address1: json['address1'],
-      address2: json['address2'] ?? '', // Handle null values
-      pinCode: json['pinCode'],
-      country: json['country'] ?? '', // Handle null values
-      phoneNumbers: Map<String, String>.from(
-          json['phoneNumbers'] ?? {}), // Handle null or empty phone numbers
-      emailAddresses: Map<String, String>.from(
-          json['emailAddresses'] ?? {}), // Handle null or empty email addresses
-      agentId: json['agentId'], // Change 'agentid' to 'agentId'
-      isActive: json['isActive']
-    );
+        clientId: json['clientId'], // Change 'id' to 'clientId'
+        systemName: json['systemName'],
+        initial: json['initial'] ?? '', // Handle null values
+        clientType: json['clientType'] ?? '', // Handle null values
+        firstName: json['firstName'] ?? '', // Handle null values
+        middleName: json['middleName'] ?? '', // Handle null values
+        lastName: json['lastName'] ?? '', // Handle null values
+        firmName: json['firmName'] ?? '', // Handle null values
+        address1: json['address1'],
+        address2: json['address2'] ?? '', // Handle null values
+        pinCode: json['pinCode'],
+        country: json['country'] ?? '', // Handle null values
+        phoneNumbers: Map<String, String>.from(
+            json['phoneNumbers'] ?? {}), // Handle null or empty phone numbers
+        emailAddresses: Map<String, String>.from(json['emailAddresses'] ??
+            {}), // Handle null or empty email addresses
+        agentId: json['agentId'], // Change 'agentid' to 'agentId'
+        isActive: json['isActive']);
   }
 
   // To JSON

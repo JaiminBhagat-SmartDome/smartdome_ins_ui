@@ -31,8 +31,10 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       final thisMonth = await _renewalRepository.fetchThisMonthRenewals();
       final nextMonth = await _renewalRepository.fetchNextMonthRenewals();
       setState(() {
-        thisMonthRenewals = thisMonth..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
-        nextMonthRenewals = nextMonth..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
+        thisMonthRenewals = thisMonth
+          ..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
+        nextMonthRenewals = nextMonth
+          ..sort((a, b) => a.policyExpiryDate.compareTo(b.policyExpiryDate));
         isLoading = false;
       });
     } catch (e) {
@@ -64,18 +66,25 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
       itemCount: renewals.length,
       itemBuilder: (context, index) {
         final renewal = renewals[index];
-        final clientName = renewal.client?.getDisplayName() ?? 'Unknown Client'; // Combine first and last name
+        final clientName = renewal.client?.getDisplayName() ??
+            'Unknown Client'; // Combine first and last name
         return ListTile(
           title: Text(clientName), // Show client name
-          subtitle: Text('Policy Expiry Date: ${DateFormat('MM-dd-yyyy').format(renewal.policyExpiryDate.toLocal())}'),
+          subtitle: Text(
+              'Policy Expiry Date: ${DateFormat('MM-dd-yyyy').format(renewal.policyExpiryDate.toLocal())}'),
           onTap: () {
-            // Navigate to detail screen and pass the selected renewal object
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RenewalDetailScreen(renewal: renewal),
-              ),
-            );
+            if (renewal != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RenewalDetailScreen(renewal: renewal),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Invalid renewal data')),
+              );
+            }
           },
         );
       },
