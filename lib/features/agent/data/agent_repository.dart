@@ -4,7 +4,7 @@ import '../../../core/shared_preferences_helper.dart';
 import '../models/agents.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smartdome_ins_ui/Config.dart';
+import '../../../config.dart';
 
 class AgentRepository {
   final String getAgentsbyTenantIdPath = 'Agent/${AppConfig.defaultTenantId}';

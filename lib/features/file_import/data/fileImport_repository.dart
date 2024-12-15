@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:smartdome_ins_ui/Config.dart';
 import '../../../core/shared_preferences_helper.dart';
 import '../models/importedFiles.dart';
+import '../../../config.dart';
 
 class FileImportRepository {
   static const String _postPolicyImportPath = 'PolicyImport/import?agentId=';

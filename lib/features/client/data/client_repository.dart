@@ -1,8 +1,8 @@
 import 'dart:convert';
-import '../../../Config.dart';
 import '../../../core/shared_preferences_helper.dart';
 import '../models/clients.dart';
 import 'package:http/http.dart' as http;
+import '../../../config.dart';
 
 class ClientRepository {
   // API paths
