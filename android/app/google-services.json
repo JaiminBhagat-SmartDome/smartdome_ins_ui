@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "652005183313",
+    "project_id": "smartdomeins",
+    "storage_bucket": "smartdomeins.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652005183313:android:15f6e1fed0d8e1753f4d70",
+        "android_client_info": {
+          "package_name": "com.smartdomeins.smartdome_ins_ui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsRBa1PaZktx3YcsqleSX8uIJ9mstmew8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
