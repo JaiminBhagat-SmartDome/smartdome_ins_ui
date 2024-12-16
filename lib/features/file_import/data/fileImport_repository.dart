@@ -42,7 +42,7 @@ class FileImportRepository {
   /// Retrieves a list of imported files for the selected agent.
   Future<List<ImportedFile>> retrieveImportedFiles() async {
     try {
-      final String? agentId =
+      final String agentId =
           await SharedPreferencesHelper.getSelectedAgentId();
       if (agentId == null) {
         throw Exception('Agent ID is not available');
@@ -69,7 +69,7 @@ class FileImportRepository {
   /// Synchronizes clients with the given file import ID.
   Future<bool> syncClients(String fileImportId) async {
     try {
-      final String? agentId =
+      final String agentId =
           await SharedPreferencesHelper.getSelectedAgentId();
       if (agentId == null) {
         throw Exception('Agent ID is not available');

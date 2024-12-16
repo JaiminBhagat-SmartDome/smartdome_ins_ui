@@ -1,10 +1,23 @@
+import 'dart:ui';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'core/navigation/app_router.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  Firebase.initializeApp(
+    options: FirebaseOptions(apiKey: "AIzaSyCsRBa1PaZktx3YcsqleSX8uIJ9mstmew8", appId: "1:652005183313:android:15f6e1fed0d8e1753f4d70",
+     messagingSenderId: "652005183313", projectId: "smartdomeins")
+  );
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
   runApp(const MyApp());
 }
 

@@ -4,6 +4,8 @@ import '../data/client_repository.dart'; // Import the Client Repository
 import 'client_view_screen.dart'; // Import the Client Detail Screen (assumed to exist)
 
 class ClientListScreen extends StatefulWidget {
+  const ClientListScreen({super.key});
+
   @override
   _ClientListScreenState createState() => _ClientListScreenState();
 }
@@ -13,7 +15,6 @@ class _ClientListScreenState extends State<ClientListScreen> {
   late final ClientRepository _repository;
   List<Client> _clients = [];
   List<Client> _filteredClients = [];
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -35,7 +36,6 @@ class _ClientListScreenState extends State<ClientListScreen> {
   // Filter clients based on search query
   void _filterClients(String query) {
     setState(() {
-      _searchQuery = query;
       _filteredClients = _clients.where((client) {
         return client.firstName.toLowerCase().contains(query.toLowerCase()) ||
             client.lastName.toLowerCase().contains(query.toLowerCase());

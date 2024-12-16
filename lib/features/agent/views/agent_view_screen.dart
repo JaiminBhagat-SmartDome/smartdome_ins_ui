@@ -5,6 +5,8 @@ import '../data/agent_repository.dart';
 import 'agent_edit_screen.dart'; // Import the edit screen
 
 class AgentViewScreen extends StatefulWidget {
+  const AgentViewScreen({super.key});
+
   @override
   _AgentViewScreenState createState() => _AgentViewScreenState();
 }
@@ -24,7 +26,7 @@ class _AgentViewScreenState extends State<AgentViewScreen> {
   Future<void> _loadAgentId() async {
     final selectedAgentId = await SharedPreferencesHelper.getSelectedAgentId();
     setState(() {
-      agentId = selectedAgentId ?? ''; // Set the agentId here
+      agentId = selectedAgentId; // Set the agentId here
       // Fetch agent details once agentId is available
       agentFuture = agentRepository.fetchAgentById(agentId);
     });

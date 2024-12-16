@@ -6,9 +6,9 @@ class RenewalDetailScreen extends StatelessWidget {
   final Renewal renewal;
 
   const RenewalDetailScreen({
-    Key? key,
+    super.key,
     required this.renewal,
-  }) : super(key: key);
+  });
 
   // Function to open the email app
   Future<void> _openEmailApp() async {

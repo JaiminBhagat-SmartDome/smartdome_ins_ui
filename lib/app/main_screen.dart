@@ -6,7 +6,7 @@ import '../core/components/bottom_navigation_bar.dart';
 import '../features/file_import/views/file_import_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();

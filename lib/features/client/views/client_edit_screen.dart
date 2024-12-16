@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/clients.dart'; // Import the Client model
 import '../data/client_repository.dart'; // Import the Client Repository
-import 'client_view_screen.dart'; // Import the Client View Screen (assumed to exist)
 
 class ClientEditScreen extends StatefulWidget {
   final Client client;
-  late final ClientRepository _repository;
 
-  ClientEditScreen({required this.client});
+  const ClientEditScreen({super.key, required this.client});
 
   @override
   _ClientEditScreenState createState() => _ClientEditScreenState();
@@ -34,7 +32,7 @@ class _ClientEditScreenState extends State<ClientEditScreen> {
     super.initState();
     _firstNameController = TextEditingController(text: widget.client.firstName);
     _middleNameController =
-        TextEditingController(text: widget.client.middleName ?? '');
+        TextEditingController(text: widget.client.middleName);
     _lastNameController = TextEditingController(text: widget.client.lastName);
     _address1Controller = TextEditingController(text: widget.client.address1);
     _address2Controller = TextEditingController(text: widget.client.address2);
@@ -52,7 +50,7 @@ class _ClientEditScreenState extends State<ClientEditScreen> {
     _secondaryEmailController = TextEditingController(
         text: widget.client.emailAddresses['Secondary'] ?? '');
     _firmNameController =
-        TextEditingController(text: widget.client.firmName ?? '');
+        TextEditingController(text: widget.client.firmName);
     _clientType = widget.client.clientType.isNotEmpty
         ? widget.client.clientType
         : "Individual";

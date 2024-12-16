@@ -13,10 +13,6 @@ class ClientRepository {
     // Retrieve the agentId using SharedPreferencesHelper
     String? agentId = await SharedPreferencesHelper.getSelectedAgentId();
 
-    if (agentId == null) {
-      throw Exception('No agentId found');
-    }
-
     // Construct the API URL
     final String url = '${AppConfig.apiBaseUrl}$_clientPath/$agentId';
 

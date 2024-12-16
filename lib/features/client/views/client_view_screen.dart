@@ -6,7 +6,7 @@ class ClientViewScreen extends StatelessWidget {
   final Client client;
 
   // Constructor to accept client object from previous screen
-  ClientViewScreen({required this.client});
+  const ClientViewScreen({super.key, required this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ClientViewScreen extends StatelessWidget {
             _buildDetailRow('Client Type', client.clientType),
             if (client.clientType == 'Individual') ...[
               _buildDetailRow('First Name', client.firstName),
-              _buildDetailRow('Middle Name', client.middleName ?? ''),
+              _buildDetailRow('Middle Name', client.middleName),
               _buildDetailRow('Last Name', client.lastName),
             ] else ...[
               _buildDetailRow('First Name', client.firstName),

@@ -6,7 +6,7 @@ import '../models/agents.dart';
 import '../data/agent_repository.dart';
 
 class AgentSelectionScreen extends StatefulWidget {
-  const AgentSelectionScreen({Key? key}) : super(key: key);
+  const AgentSelectionScreen({super.key});
 
   @override
   State<AgentSelectionScreen> createState() => _AgentSelectionScreenState();

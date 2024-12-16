@@ -6,7 +6,7 @@ import '../data/agent_repository.dart';
 class AgentEditScreen extends StatefulWidget {
   final Agent agent;
 
-  AgentEditScreen({required this.agent});
+  const AgentEditScreen({super.key, required this.agent});
 
   @override
   _AgentEditScreenState createState() => _AgentEditScreenState();

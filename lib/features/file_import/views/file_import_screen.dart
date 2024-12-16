@@ -7,6 +7,8 @@ import '../data/fileImport_repository.dart';
 import '../models/importedFiles.dart'; // Assuming the repository is in a separate file
 
 class FileImportScreen extends StatefulWidget {
+  const FileImportScreen({super.key});
+
   @override
   _FileImportScreenState createState() => _FileImportScreenState();
 }

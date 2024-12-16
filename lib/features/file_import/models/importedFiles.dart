@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class ImportedFile {
   final String fileImportId;
   final String filename;

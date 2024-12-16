@@ -5,7 +5,7 @@ import '../data/renewals_repository.dart';
 import 'renewals_detail_screen.dart'; // Import the detail screen where you will show the renewal details
 
 class UpcomingRenewalsScreen extends StatefulWidget {
-  const UpcomingRenewalsScreen({Key? key}) : super(key: key);
+  const UpcomingRenewalsScreen({super.key});
 
   @override
   State<UpcomingRenewalsScreen> createState() => _UpcomingRenewalsScreenState();
@@ -73,19 +73,13 @@ class _UpcomingRenewalsScreenState extends State<UpcomingRenewalsScreen>
           subtitle: Text(
               'Policy Expiry Date: ${DateFormat('MM-dd-yyyy').format(renewal.policyExpiryDate.toLocal())}'),
           onTap: () {
-            if (renewal != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RenewalDetailScreen(renewal: renewal),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Invalid renewal data')),
-              );
-            }
-          },
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RenewalDetailScreen(renewal: renewal),
+              ),
+            );
+                    },
         );
       },
     );

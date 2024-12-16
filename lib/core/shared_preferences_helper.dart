@@ -22,7 +22,7 @@ class SharedPreferencesHelper {
     final prefs = await SharedPreferences.getInstance();
     // Convert the selected agent object to JSON string
     String agentJson = json.encode(agent.toMap());
-    print('setSelectedAgent: ${agentJson}');
+    print('setSelectedAgent: $agentJson');
     await prefs.setString('selectedAgent', agentJson); // Save JSON to SharedPreferences
   }
 

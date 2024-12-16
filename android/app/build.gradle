@@ -33,21 +33,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.debug
-            // Enable Firebase Crashlytics for release builds
-            firebaseCrashlytics {
-                mappingFileUploadEnabled true
-            }
         }
     }
 }
 
 flutter {
     source = "../.."
-}
-
-dependencies {
-    // Add the Firebase Crashlytics and Analytics dependencies
-    implementation platform('com.google.firebase:firebase-bom:33.7.0')
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-analytics' // Optional but recommended for better insights
 }
